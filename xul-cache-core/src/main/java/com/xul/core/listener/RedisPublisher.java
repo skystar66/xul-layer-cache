@@ -18,9 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class RedisPublisher {
 
 
-
-
-
     /**
      * 发布消息到频道（Channel）
      *
@@ -49,12 +46,6 @@ public class RedisPublisher {
             log.info("redis消息发布者向频道【{}】发布了【{}】消息", RedisMessageListener.CHANNEL, message.toString());
         }
     }
-
-
-
-
-
-
 
 
 }
