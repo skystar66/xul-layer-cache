@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: cache-web-node
+server:
+  port: 7890
+
+
+
+##分布式缓存redis配置
+layering-cache:
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+
+
+
+
+
+
+
+
+
