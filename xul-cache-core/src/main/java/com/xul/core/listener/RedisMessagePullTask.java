@@ -64,7 +64,9 @@ public class RedisMessagePullTask {
      * @date: 2021/9/29
      **/
     private void reconnectionTask() {
-        pullTaskExecutor.scheduleWithFixedDelay(() -> redisMessageService.reconnection(),
+        pullTaskExecutor.scheduleWithFixedDelay(() -> {
+                    redisMessageService.reconnection();
+                },
                 5, 5, TimeUnit.SECONDS);
         log.info("启动探活任务线程成功！！！");
 

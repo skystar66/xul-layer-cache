@@ -6,7 +6,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
-@ConfigurationProperties(prefix = "layering-cache.redis")
+//@ConfigurationProperties(prefix = "layering-cache.redis")
 public class LayeringCacheRedisProperties {
     Integer database = 0;
     /**

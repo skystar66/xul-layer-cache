@@ -2,6 +2,7 @@ package com.xul.core.cache;
 
 import com.xul.core.config.LayeringCacheConfig;
 import com.xul.core.exception.LoaderCacheValueException;
+import com.xul.core.function.CacheFunctionWithParamReturn;
 import com.xul.core.logger.LoggerHelper;
 import com.xul.core.redis.client.RedisClient;
 import com.xul.core.supports.AwaitThreadContainer;
@@ -79,8 +80,9 @@ public class LayeringCache extends AbstractValueAdaptingCache {
         return result;
     }
 
+
     @Override
-    public <T> T get(String key, Class<T> resultType, Callable<T> valueLoader) {
+    public <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader) {
         T result = firstCache.get(key, resultType);
         if (LoggerHelper.isDebugEnabled()) {
             log.info("查询一级缓存。 key={},返回值是:{}", key, GSONUtil.toJson(result));
@@ -142,7 +144,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
 
 
     /**
-     * 执行缓存方法，查询二级缓存，二级缓存不存在，查询数据库，执行数据加载器
+     * 执行缓存方法，查询一级缓存，一级/二级缓存不存在，查询数据库，执行数据加载器
      * 获取锁的线程等待500ms,如果500ms都没返回，则直接释放锁放下一个请求进来，防止第一个线程异常挂掉
      *
      * @param key
@@ -152,7 +154,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> T executeCacheMethod(String key, Class<T> resultType, Callable<T> valueLoader) {
+    private <T> T executeCacheMethod(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader) {
         while (true) {
             try {
                 // 先取缓存，如果有直接返回，没有再去做拿锁操作
@@ -204,7 +206,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> void refreshCache(String key, Class<T> resultType, Callable<T> valueLoader, Object result) {
+    private <T> void refreshCache(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader, Object result) {
         ThreadPoolExecutorTask.run(() -> {
             /**缓存主动在失效前强制刷新缓存的时间*/
             long preload = layeringCacheConfig.getSecondaryCacheConfig().getPreloadTime();
@@ -258,7 +260,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> void forceRefresh(String key, Class<T> resultType, Callable<T> valueLoader, Object result) {
+    private <T> void forceRefresh(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader, Object result) {
         redisClient.tryLock(key, 100, 10 * 1000, TimeUnit.MILLISECONDS, () -> {
             try {
                 /**查询数据库*/
@@ -285,11 +287,11 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> T loaderAndPutValue(String key, Callable<T> valueLoader) {
+    private <T> T loaderAndPutValue(String key, CacheFunctionWithParamReturn<T,String> valueLoader) {
         long start = System.currentTimeMillis();
         try {
             // 加载数据
-            Object loadResult = valueLoader.call();
+            Object loadResult = valueLoader.invokeMethod(key);
             secondCache.put(key, loadResult);
             if (LoggerHelper.isDebugEnabled()) {
                 log.info("redis缓存 key={} 执行被缓存的方法，并将其放入缓存, 耗时：{}。数据:{}", key, System.currentTimeMillis() - start, GSONUtil.toJson(loadResult));

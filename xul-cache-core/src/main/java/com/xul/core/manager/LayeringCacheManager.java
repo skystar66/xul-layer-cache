@@ -28,12 +28,10 @@ public class LayeringCacheManager extends AbstractCacheManager {
     }
 
 
-
-    public void init(RedisClient redisClient,String applicationName) throws Exception {
-        // 设置缓存命名空间
+    public void init(RedisClient redisClient, String applicationName) throws Exception {
+        /**设置缓存命名空间*/
         GlobalConfig.setNamespace(applicationName);
-
-        this.redisClient=redisClient;
+        this.redisClient = redisClient;
         /**redis pub/sub 监听器*/
         RedisMessageListener.getInstance().init(this);
         /**redis pull 消息任务*/
@@ -44,9 +42,9 @@ public class LayeringCacheManager extends AbstractCacheManager {
 
     @Override
     protected Cache createCache(String name, LayeringCacheConfig layeringCacheConfig) {
-        // 创建一级缓存
+        /**创建一级缓存*/
         CaffeineCache caffeineCache = new CaffeineCache(name, layeringCacheConfig.getFirstCacheConfig());
-        // 创建二级缓存
+        /**创建二级缓存*/
         RedisCache redisCache = new RedisCache(name, redisClient, layeringCacheConfig.getSecondaryCacheConfig());
 
         return new LayeringCache(name, redisClient, caffeineCache, redisCache, layeringCacheConfig);

@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.xul.core.cache.AbstractValueAdaptingCache;
 import com.xul.core.config.FirstCacheConfig;
 import com.xul.core.exception.LoaderCacheValueException;
+import com.xul.core.function.CacheFunctionWithParamReturn;
 import com.xul.core.logger.LoggerHelper;
 import com.xul.core.supports.ExpireMode;
 import com.xul.core.utils.GSONUtil;
@@ -64,12 +65,14 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
         return null;
     }
 
+
     @Override
-    public <T> T get(String key, Class<T> resultType, Callable<T> valueLoader) {
+    public <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader) {
         Object result = this.cache.get(key, k -> loaderValue(key, valueLoader));
 
         return (T) fromStoreValue(result);
     }
+
 
     @Override
     public void put(String key, Object value) {
@@ -102,9 +105,9 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
     /**
      * 加载数据
      */
-    private <T> Object loaderValue(String key, Callable<T> valueLoader) {
+    private <T> Object loaderValue(String key, CacheFunctionWithParamReturn<T, String> valueLoader) {
         try {
-            T t = valueLoader.call();
+            T t = valueLoader.invokeMethod(key);
             if (LoggerHelper.isDebugEnabled()) {
                 log.info("caffeine缓存 key={} 从库加载缓存", key, GSONUtil.toJson(t));
             }

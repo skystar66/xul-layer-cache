@@ -1,11 +1,13 @@
 package com.xul.cache.web;
 
-//import com.xul.cache.starter.config.EnableLayeringCache;
+
+import com.xul.cache.starter.config.EnableLayeringCache;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+//@ComponentScan({"com.xul"})
 @SpringBootApplication
-//@EnableLayeringCache
+@EnableLayeringCache
 public class CacheApplication {
 
     public static void main(String[] args) {

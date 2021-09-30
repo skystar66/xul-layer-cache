@@ -2,6 +2,7 @@ package com.xul.core.cache.redis;
 
 import com.xul.core.cache.AbstractValueAdaptingCache;
 import com.xul.core.config.SecondaryCacheConfig;
+import com.xul.core.function.CacheFunctionWithParamReturn;
 import com.xul.core.redis.client.RedisClient;
 import com.xul.core.supports.NullValue;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class RedisCache extends AbstractValueAdaptingCache {
 
 
     @Override
-    public <T> T get(String key, Class<T> resultType, Callable<T> valueLoader) {
+    public <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader) {
         // 先获取缓存，如果有直接返回
         T result = redisClient.get(key, resultType);
         if (result != null) {

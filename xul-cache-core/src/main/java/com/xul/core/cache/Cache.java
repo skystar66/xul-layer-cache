@@ -1,5 +1,7 @@
 package com.xul.core.cache;
 
+import com.xul.core.function.CacheFunctionWithParamReturn;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -42,7 +44,7 @@ public interface Cache {
      * @author: xl
      * @date: 2021/9/26
      **/
-    <T> T get(String key, Class<T> resultType, Callable<T> valueLoader);
+    <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader);
 
 
     /**
