@@ -11,8 +11,6 @@ import com.xul.core.supports.ExpireMode;
 import com.xul.core.utils.GSONUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.Callable;
-
 /**
  * 基于caffeine实现的一级缓存
  *
@@ -58,7 +56,7 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
         Object result = cache.getIfPresent(key);
         if (result != null) {
             if (LoggerHelper.isDebugEnabled()) {
-                log.info("caffine 获取缓存 key={},result={}", key, result);
+                log.info("缓存名称={},caffine 获取缓存 key={},result={}",getCacheName(), key, result);
             }
             return (T) result;
         }

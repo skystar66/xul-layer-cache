@@ -9,7 +9,6 @@ import com.xul.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Service;
 
 import java.util.Map;
 

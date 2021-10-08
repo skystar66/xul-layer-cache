@@ -7,7 +7,6 @@ import com.xul.core.config.FirstCacheConfig;
 import com.xul.core.config.SecondaryCacheConfig;
 import com.xul.core.supports.ExpireMode;
 import lombok.Getter;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
