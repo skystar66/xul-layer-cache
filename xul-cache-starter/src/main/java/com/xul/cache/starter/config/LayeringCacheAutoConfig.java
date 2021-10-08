@@ -14,9 +14,11 @@ import java.util.Map;
 
 /**
  * 分布式缓存自动配置
+ * BeanPostProcessor在spring初始化bean之前 执行postProcessBeforeInitialization方法
  *
  * @author: xl
  * @date: 2021/9/29
+ * @see BeanPostProcessor#postProcessBeforeInitialization(Object, String)
  **/
 @Slf4j
 public class LayeringCacheAutoConfig implements BeanPostProcessor {
