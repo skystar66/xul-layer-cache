@@ -4,7 +4,9 @@ import com.xul.core.config.RedisConfig;
 import com.xul.core.function.CacheFunctionWithoutReturn;
 import com.xul.core.listener.RedisMessageListener;
 import com.xul.core.redis.serializer.KryoRedisSerializer;
+import com.xul.core.redis.serializer.ProtostuffRedisSerializer;
 import com.xul.core.redis.serializer.RedisSerializer;
+import com.xul.core.redis.serializer.StringRedisSerializer;
 import com.xul.core.utils.GSONUtil;
 import com.xul.core.utils.StringUtils;
 import com.xul.core.exception.RedisClientException;
@@ -40,8 +42,8 @@ public class ClusterRedisClient implements RedisClient {
     /**
      * 默认序列化容器
      */
-    private RedisSerializer keyRedisSerializer = new KryoRedisSerializer();
-    private RedisSerializer valueRedisSerializer = new KryoRedisSerializer();
+    private RedisSerializer keyRedisSerializer = new StringRedisSerializer();
+    private RedisSerializer valueRedisSerializer = new ProtostuffRedisSerializer();
 
 
     private static GenericObjectPool<StatefulRedisClusterConnection<byte[], byte[]>> pool;
@@ -128,6 +130,25 @@ public class ClusterRedisClient implements RedisClient {
 
     @Override
     public <T> T get(String key, Class<T> resultType) {
+        StatefulRedisClusterConnection<byte[], byte[]> connection = null;
+        try {
+            connection = getLettcueRedisResource();
+            byte[] cache = connection.sync().get(keyRedisSerializer.serialize(key));
+            if (cache != null) {
+                return valueRedisSerializer.deserialize(cache, resultType);
+            }
+            return null;
+        } catch (Exception exception) {
+            log.error("single redis 【get】 error:{}", exception);
+            throw new RedisClientException(exception.getMessage(), exception);
+        } finally {
+            returnConnectionPool(connection);
+        }
+    }
+
+
+    @Override
+    public <T> T get(String key, Class<T> resultType, RedisSerializer valueRedisSerializer) {
         StatefulRedisClusterConnection<byte[], byte[]> connection = null;
         try {
             connection = getLettcueRedisResource();

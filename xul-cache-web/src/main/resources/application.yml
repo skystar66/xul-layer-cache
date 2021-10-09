@@ -12,6 +12,8 @@ layering-cache:
     database: 0
     host: 127.0.0.1
     port: 6379
+    key-serializer: com.xul.core.redis.serializer.StringRedisSerializer
+    value-serializer: com.xul.core.redis.serializer.ProtostuffRedisSerializer
 
 
 

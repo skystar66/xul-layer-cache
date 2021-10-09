@@ -46,6 +46,20 @@ public interface RedisClient {
      **/
     <T> T get(String key, Class<T> resultType);
 
+
+    /**
+     * 获取key的缓存值value，并将value转换成对应序列化类型返回
+     *
+     * @param key
+     * @param resultType
+     * @param valueRedisSerializer
+     * @return: T
+     * @author: xl
+     * @date: 2021/10/9
+     **/
+    <T> T get(String key, Class<T> resultType, RedisSerializer valueRedisSerializer);
+
+
     /**
      * <p>
      * 向redis存入key和value,并释放连接资源

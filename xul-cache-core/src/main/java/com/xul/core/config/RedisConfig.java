@@ -33,7 +33,9 @@ public class RedisConfig {
      * com.xul.core.redis.serializer.JdkRedisSerializer
      * com.xul.core.redis.serializer.ProtostuffRedisSerializer
      */
-    String serializer = "com.xul.core.redis.serializer.KryoRedisSerializer";
+    String keySerializer = "com.xul.core.redis.serializer.StringRedisSerializer";
+    String valueSerializer = "com.xul.core.redis.serializer.ProtostuffRedisSerializer";
+
 
 
 

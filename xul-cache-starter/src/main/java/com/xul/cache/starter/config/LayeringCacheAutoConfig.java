@@ -40,16 +40,17 @@ public class LayeringCacheAutoConfig implements BeanPostProcessor {
         redisConfig.setPassword(StringUtils.isBlank(configAllMap.getOrDefault("layering-cache.redis.password", "").toString())
                 ? null : configAllMap.getOrDefault("layering-cache.redis.password", "").toString());
         redisConfig.setPort(Integer.parseInt(configAllMap.getOrDefault("layering-cache.redis.port", 6379).toString()));
-        redisConfig.setSerializer("com.xul.core.redis.serializer.KryoRedisSerializer");
+        redisConfig.setKeySerializer(configAllMap.getOrDefault("layering-cache.redis.key-serializer", "com.xul.core.redis.serializer.StringRedisSerializer").toString());
+        redisConfig.setValueSerializer(configAllMap.getOrDefault("layering-cache.redis.value-serializer", "com.xul.core.redis.serializer.ProtostuffRedisSerializer").toString());
         try {
-            RedisSerializer valueRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getSerializer()).newInstance();
-            RedisSerializer keyRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getSerializer()).newInstance();
+            RedisSerializer valueRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getValueSerializer()).newInstance();
+            RedisSerializer keyRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getKeySerializer()).newInstance();
             RedisClient redisClient = RedisClient.getInstance(redisConfig);
             redisClient.setKeySerializer(keyRedisSerializer);
             redisClient.setValueSerializer(valueRedisSerializer);
             /**初始化分布式缓存管理器*/
             LayeringCacheManager.getInstance().init(redisClient, applicationName);
-            log.info(">>>>>>>>>> layering-cache init success!!! <<<<<<<<<<");
+            log.info(">>>>>>>>>> layering-cache init success config=[{}]!!! <<<<<<<<<<",redisConfig);
         } catch (Exception exception) {
             log.error("初始化分布式缓存发生错误！{}", exception);
         }
