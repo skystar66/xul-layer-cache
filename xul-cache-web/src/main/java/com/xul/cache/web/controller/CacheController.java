@@ -7,7 +7,6 @@ import com.xul.core.cache.Cache;
 import com.xul.core.config.FirstCacheConfig;
 import com.xul.core.config.SecondaryCacheConfig;
 import com.xul.core.supports.ExpireMode;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,10 +21,8 @@ public class CacheController {
 
     /**
      * 使用方式：demo
-     * 构建一个用户分布式缓存
+     * 构建一个订单分布式缓存
      */
-
-    @Getter
     private static Cache orderCache = LayeringCacheBuilder.builder()
             /**缓存名称*/
             .cacheName("order")

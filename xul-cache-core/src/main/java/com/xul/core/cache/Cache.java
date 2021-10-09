@@ -2,8 +2,6 @@ package com.xul.core.cache;
 
 import com.xul.core.function.CacheFunctionWithParamReturn;
 
-import java.util.concurrent.Callable;
-
 /**
  * 缓存接口
  *
