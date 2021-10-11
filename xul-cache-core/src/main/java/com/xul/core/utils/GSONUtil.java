@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.xul.core.redis.serializer.SerializationException;
 import lombok.NonNull;
 
 import java.io.Reader;
@@ -86,6 +87,15 @@ public class GSONUtil {
 
     public static String toJsonPretty(Object object) {
         return GSON_PRETTY.toJson(object);
+    }
+
+    public static  <T> byte[] serialize(T obj) throws SerializationException {
+        //1. jdk 序列化 //2. json //3.自定义算法（Hessian2）
+        return GSON.toJson(obj).getBytes();
+    }
+
+    public static <T> T deserialize(byte[] bytes, Class<T> clazz) throws SerializationException {
+        return GSON.fromJson(new String(bytes), clazz);//new String(bytes) 用bytes数组构造字符串，每一个byte可以对应一个十进制的数字，由8个bit组成
     }
 
 }

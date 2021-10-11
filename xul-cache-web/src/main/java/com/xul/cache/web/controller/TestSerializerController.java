@@ -23,6 +23,7 @@ public class TestSerializerController {
     public String put() {
 
         testSerializer();
+//        testRedisSerializer();
         return "success";
     }
 
@@ -60,15 +61,22 @@ public class TestSerializerController {
         JacksonRedisSerializer jacksonRedisSerializer = new JacksonRedisSerializer();
         JdkRedisSerializer jdkRedisSerializer = new JdkRedisSerializer();
         ProtostuffRedisSerializer protostuffRedisSerializer = new ProtostuffRedisSerializer();
+        GsonRedisSerializer gsonRedisSerializer = new GsonRedisSerializer();
 
         byte[] kryoUserBytes = kryoRedisSerializer.serialize(user);
         byte[] fastjsonUserBytes = fastJsonRedisSerializer.serialize(user);
         byte[] jackjsonUserBytes = jacksonRedisSerializer.serialize(user);
         byte[] jdkUserBytes = jdkRedisSerializer.serialize(user);
         byte[] protostufUserBytes = protostuffRedisSerializer.serialize(user);
+        byte[] gsonUserBytes = gsonRedisSerializer.serialize(user);
 
         int count = 500_000;
         long start = System.currentTimeMillis();
+        /**gson 序列化*/
+        for (int i = 0; i < count; i++) {
+            gsonRedisSerializer.serialize(user);
+        }
+        long gsonSet = System.currentTimeMillis() - start;
 
         /**kryo 序列化*/
         for (int i = 0; i < count; i++) {
@@ -103,6 +111,14 @@ public class TestSerializerController {
         }
         long protostufSet = System.currentTimeMillis() - start;
 
+        /**gson 反序列化*/
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            gsonRedisSerializer.deserialize(gsonUserBytes, User.class);
+        }
+
+        long gsonGet = System.currentTimeMillis() - start;
         /**kryo 反序列化*/
 
         start = System.currentTimeMillis();
@@ -145,28 +161,32 @@ public class TestSerializerController {
         }
         long protostufGet = System.currentTimeMillis() - start;
 
+
         /** 各个序列化工具 耗时打印*/
 
-        System.out.println("KryoRedisSerializer:" + kryoRedisSerializer.serialize(user).length + " b");
-        System.out.println("fastJsonRedisSerializer:" + fastJsonRedisSerializer.serialize(user).length + " b");
-        System.out.println("jacksonRedisSerializer:" + jacksonRedisSerializer.serialize(user).length + " b");
-        System.out.println("jdkRedisSerializer:" + jdkRedisSerializer.serialize(user).length + " b");
+        System.out.println("KryoRedisSerializer      :" + kryoRedisSerializer.serialize(user).length + " b");
+        System.out.println("fastJsonRedisSerializer  :" + fastJsonRedisSerializer.serialize(user).length + " b");
+        System.out.println("jacksonRedisSerializer   :" + jacksonRedisSerializer.serialize(user).length + " b");
+        System.out.println("jdkRedisSerializer       :" + jdkRedisSerializer.serialize(user).length + " b");
         System.out.println("protostuffRedisSerializer:" + protostuffRedisSerializer.serialize(user).length + " b");
+        System.out.println("gsonRedisSerializer:" + gsonRedisSerializer.serialize(user).length + " b");
         System.out.println();
         /** 各个反序列化工具 耗时打印*/
 
-        System.out.println("KryoRedisSerializer serialize:" + kryoSet + " ms  ");
-        System.out.println("fastJsonRedisSerializer serialize:" + fastJsonSet + " ms  ");
-        System.out.println("jacksonRedisSerializer serialize:" + jacksonSet + " ms  ");
-        System.out.println("jdkRedisSerializer serialize:" + jdkSet + " ms  ");
+        System.out.println("KryoRedisSerializer serialize      :" + kryoSet + " ms  ");
+        System.out.println("fastJsonRedisSerializer serialize  :" + fastJsonSet + " ms  ");
+        System.out.println("jacksonRedisSerializer serialize   :" + jacksonSet + " ms  ");
+        System.out.println("jdkRedisSerializer serialize       :" + jdkSet + " ms  ");
         System.out.println("protostuffRedisSerializer serialize:" + protostufSet + " ms  ");
+        System.out.println("gsonRedisSerializer serialize      :" + gsonSet + " ms  ");
         System.out.println();
 
-        System.out.println("KryoRedisSerializer deserialize:" + kryoGet + " ms  ");
-        System.out.println("fastJsonRedisSerializer deserialize:" + fastJsonGet + " ms  ");
-        System.out.println("jacksonRedisSerializer deserialize:" + jacksonGet + " ms  ");
-        System.out.println("jdkRedisSerializer deserialize:" + jdkGet + " ms  ");
+        System.out.println("KryoRedisSerializer deserialize      :" + kryoGet + " ms  ");
+        System.out.println("fastJsonRedisSerializer deserialize  :" + fastJsonGet + " ms  ");
+        System.out.println("jacksonRedisSerializer deserialize   :" + jacksonGet + " ms  ");
+        System.out.println("jdkRedisSerializer deserialize       :" + jdkGet + " ms  ");
         System.out.println("protostuffRedisSerializer deserialize:" + protostufGet + " ms  ");
+        System.out.println("gsonRedisSerializer       deserialize:" + gsonGet + " ms  ");
 
 
         System.out.println(systemInfo());
@@ -180,11 +200,19 @@ public class TestSerializerController {
         JacksonRedisSerializer jacksonRedisSerializer = new JacksonRedisSerializer();
         JdkRedisSerializer jdkRedisSerializer = new JdkRedisSerializer();
         ProtostuffRedisSerializer protostuffRedisSerializer = new ProtostuffRedisSerializer();
+        GsonRedisSerializer gsonRedisSerializer = new GsonRedisSerializer();
 
         RedisClient redisClient = LayeringCacheManager.getInstance().getRedisClient();
 
         int count = 100_000;
+
         long start = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            redisClient.set("Serializer:gsonRedisSerializer", user, 10, TimeUnit.MINUTES, gsonRedisSerializer);
+        }
+        long gsonSet = System.currentTimeMillis() - start;
+
+        start = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
             redisClient.set("Serializer:KryoRedisSerializer", user, 10, TimeUnit.MINUTES, kryoRedisSerializer);
         }
@@ -218,6 +246,13 @@ public class TestSerializerController {
         }
         long protostufSet = System.currentTimeMillis() - start;
         String protostufSetInfo = systemInfo();
+
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < count; i++) {
+            redisClient.get("Serializer:gsonRedisSerializer", User.class, gsonRedisSerializer);
+        }
+        long gsonGet = System.currentTimeMillis() - start;
 
         start = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
@@ -260,6 +295,7 @@ public class TestSerializerController {
         System.out.println("jacksonRedisSerializer:" + jacksonRedisSerializer.serialize(user).length + " b");
         System.out.println("jdkRedisSerializer:" + jdkRedisSerializer.serialize(user).length + " b");
         System.out.println("protostuffRedisSerializer:" + protostuffRedisSerializer.serialize(user).length + " b");
+        System.out.println("gsonRedisSerializer:" + gsonRedisSerializer.serialize(user).length + " b");
         System.out.println();
 
         System.out.println("KryoRedisSerializer serialize:" + kryoSet + " ms  " + kryoSetSInfo);
@@ -267,6 +303,7 @@ public class TestSerializerController {
         System.out.println("jacksonRedisSerializer serialize:" + jacksonSet + " ms  " + jacksonSetSInfo);
         System.out.println("jdkRedisSerializer serialize:" + jdkSet + " ms  " + jdkSetInfo);
         System.out.println("protostuffRedisSerializer serialize:" + protostufSet + " ms  " + protostufSetInfo);
+        System.out.println("gsonRedisSerializer serialize:" + gsonSet + " ms  " + protostufSetInfo);
         System.out.println();
 
         System.out.println("KryoRedisSerializer deserialize:" + kryoGet + " ms  " + kryoGetInfo);
@@ -274,6 +311,7 @@ public class TestSerializerController {
         System.out.println("jacksonRedisSerializer deserialize:" + jacksonGet + " ms  " + jacksonGetInfo);
         System.out.println("jdkRedisSerializer deserialize:" + jdkGet + " ms  " + jdkGetInfo);
         System.out.println("protostuffRedisSerializer deserialize:" + protostufGet + " ms  " + protostufGetInfo);
+        System.out.println("gsonRedisSerializer deserialize:" + gsonGet + " ms  " + protostufGetInfo);
 
 
         System.out.println(systemInfo());
