@@ -1,6 +1,6 @@
 package com.xul.core.config;
 
-import com.xul.core.redis.serializer.KryoRedisSerializer;
+import com.xul.core.redis.serializer.ProtostuffRedisSerializer;
 import com.xul.core.redis.serializer.RedisSerializer;
 
 /**
@@ -28,5 +28,5 @@ public class GlobalConfig {
     /**
      * 消息推送序列化器
      */
-    public static final RedisSerializer GLOBAL_REDIS_SERIALIZER = new KryoRedisSerializer();
+    public static final RedisSerializer GLOBAL_REDIS_SERIALIZER = new ProtostuffRedisSerializer();
 }

@@ -10,21 +10,13 @@ public class RedisConfig {
      * localhost:7379,localhost2:7379
      */
     private String cluster = "";
-
     private String host;
-
-
     private int port;
-
     private String password;
-
     private int database;
-
-
-    private int maxSize=500;
-    private int idleMaxSize=100;
-    private int minSize=100;
-
+    private int maxSize = 500;
+    private int idleMaxSize = 100;
+    private int minSize = 100;
     /**
      * 序列化方式:
      * com.xul.core.redis.serializer.KryoRedisSerializer
@@ -35,8 +27,6 @@ public class RedisConfig {
      */
     String keySerializer = "com.xul.core.redis.serializer.StringRedisSerializer";
     String valueSerializer = "com.xul.core.redis.serializer.ProtostuffRedisSerializer";
-
-
 
 
 }

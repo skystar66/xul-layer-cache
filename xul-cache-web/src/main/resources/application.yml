@@ -14,6 +14,9 @@ layering-cache:
     port: 6379
     key-serializer: com.xul.core.redis.serializer.StringRedisSerializer
     value-serializer: com.xul.core.redis.serializer.ProtostuffRedisSerializer
+    idlemax-size: 32
+    max-size: 64
+    min-size: 10
 
 
 

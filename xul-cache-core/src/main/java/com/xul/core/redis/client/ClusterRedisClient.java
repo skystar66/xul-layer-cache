@@ -1,15 +1,14 @@
 package com.xul.core.redis.client;
 
 import com.xul.core.config.RedisConfig;
+import com.xul.core.exception.RedisClientException;
 import com.xul.core.function.CacheFunctionWithoutReturn;
 import com.xul.core.listener.RedisMessageListener;
-import com.xul.core.redis.serializer.KryoRedisSerializer;
 import com.xul.core.redis.serializer.ProtostuffRedisSerializer;
 import com.xul.core.redis.serializer.RedisSerializer;
 import com.xul.core.redis.serializer.StringRedisSerializer;
 import com.xul.core.utils.GSONUtil;
 import com.xul.core.utils.StringUtils;
-import com.xul.core.exception.RedisClientException;
 import io.lettuce.core.*;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;

@@ -42,6 +42,9 @@ public class LayeringCacheAutoConfig implements BeanPostProcessor {
         redisConfig.setPort(Integer.parseInt(configAllMap.getOrDefault("layering-cache.redis.port", 6379).toString()));
         redisConfig.setKeySerializer(configAllMap.getOrDefault("layering-cache.redis.key-serializer", "com.xul.core.redis.serializer.StringRedisSerializer").toString());
         redisConfig.setValueSerializer(configAllMap.getOrDefault("layering-cache.redis.value-serializer", "com.xul.core.redis.serializer.ProtostuffRedisSerializer").toString());
+        redisConfig.setIdleMaxSize(Integer.parseInt(configAllMap.getOrDefault("layering-cache.redis.idlemax-size", 32).toString()));
+        redisConfig.setMaxSize(Integer.parseInt(configAllMap.getOrDefault("layering-cache.redis.max-size", 64).toString()));
+        redisConfig.setMinSize(Integer.parseInt(configAllMap.getOrDefault("layering-cache.redis.min-size", 10).toString()));
         try {
             RedisSerializer valueRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getValueSerializer()).newInstance();
             RedisSerializer keyRedisSerializer = (RedisSerializer) Class.forName(redisConfig.getKeySerializer()).newInstance();

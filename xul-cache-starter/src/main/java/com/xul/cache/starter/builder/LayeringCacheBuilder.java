@@ -69,7 +69,9 @@ public class LayeringCacheBuilder {
             return this;
         }
 
-        //获取缓存
+        /**
+         * 构造缓存
+         */
         public Cache build() {
             return new LayeringCacheBuilder(this).build();
         }

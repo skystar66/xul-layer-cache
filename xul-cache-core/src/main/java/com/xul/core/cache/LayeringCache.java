@@ -5,6 +5,7 @@ import com.xul.core.exception.LoaderCacheValueException;
 import com.xul.core.function.CacheFunctionWithParamReturn;
 import com.xul.core.logger.LoggerHelper;
 import com.xul.core.redis.client.RedisClient;
+import com.xul.core.redis.client.RedissonLockClient;
 import com.xul.core.supports.AwaitThreadContainer;
 import com.xul.core.utils.GSONUtil;
 import com.xul.core.utils.ThreadPoolExecutorTask;
@@ -166,7 +167,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
                     return (T) fromStoreValue(result);
                 }
                 /**获得分布式锁的结果*/
-                boolean lockSuccess = redisClient.tryLock(key, layeringCacheConfig.getSecondaryCacheConfig().getWAIT_TIME(),
+                boolean lockSuccess = redisClient.tryLock(RedissonLockClient.getExecuteDbLockKey(key), layeringCacheConfig.getSecondaryCacheConfig().getWAIT_TIME(),
                         10 * 1000, TimeUnit.MILLISECONDS, () -> {
                             T t = loaderAndPutValue(key, valueLoader);
                             if (LoggerHelper.isDebugEnabled()) {
@@ -245,7 +246,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @date: 2021/9/28
      **/
     private void softRefresh(String key) {
-        redisClient.tryLock(key, 100, 50, TimeUnit.MILLISECONDS, () -> {
+        redisClient.tryLock(RedissonLockClient.getTermRedisLockPrefix(key), 100, 50, TimeUnit.MILLISECONDS, () -> {
             redisClient.expire(key, layeringCacheConfig.getSecondaryCacheConfig().getExpiration(), TimeUnit.MILLISECONDS);
         });
     }
@@ -261,7 +262,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @date: 2021/9/28
      **/
     private <T> void forceRefresh(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader, Object result) {
-        redisClient.tryLock(key, 100, 10 * 1000, TimeUnit.MILLISECONDS, () -> {
+        redisClient.tryLock(RedissonLockClient.getExecuteDbLockKey(key), 100, 10 * 1000, TimeUnit.MILLISECONDS, () -> {
             try {
                 /**查询数据库*/
                 Object loadResult = loaderAndPutValue(key, valueLoader);
@@ -294,7 +295,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
             Object loadResult = valueLoader.invokeMethod(key);
             secondCache.put(key, loadResult);
             if (LoggerHelper.isDebugEnabled()) {
-                log.info("缓存名称={},redis缓存 key={} 执行被缓存的方法，并将其放入缓存, 耗时：{}。数据:{}",getCacheName(),key, System.currentTimeMillis() - start, GSONUtil.toJson(loadResult));
+                log.info("缓存名称={},redis缓存 key={} 执行被缓存的方法，并将其放入缓存, 耗时：{}ms。数据:{}",getCacheName(),key, System.currentTimeMillis() - start, GSONUtil.toJson(loadResult));
             }
             return (T) fromStoreValue(loadResult);
         } catch (Exception e) {
