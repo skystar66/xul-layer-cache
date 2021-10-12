@@ -80,7 +80,7 @@ public class RedisMessageService {
             /**本地已是最新同步的缓存信息啦*/
             return;
         }
-        long endOffset = maxOffset-oldOffset-1;
+        long endOffset = maxOffset - oldOffset - 1;
         /**获取消息*/
         List<String> messages = cacheManager.getRedisClient().lrange(GlobalConfig.getMessageRedisKey(), 0, endOffset, GlobalConfig.GLOBAL_REDIS_SERIALIZER);
         if (CollectionUtils.isEmpty(messages)) {
@@ -90,7 +90,7 @@ public class RedisMessageService {
         for (String message : messages) {
             RedisPubSubMessage pubSubMessage = GSONUtil.fromJson(message, RedisPubSubMessage.class);
             if (LoggerHelper.isDebugEnabled()) {
-                log.info("【缓存同步】redis 通过PULL方式处理本地缓存，startOffset:【0】,endOffset:【{}】,消息内容：{}", endOffset,message);
+                log.info("【缓存同步】redis 通过PULL方式处理本地缓存，startOffset:【0】,endOffset:【{}】,消息内容：{}", endOffset, message);
             }
             //获取缓存处理器
             Cache cache = cacheManager.getCacheContainer().get(pubSubMessage.getCacheName());
@@ -176,9 +176,9 @@ public class RedisMessageService {
         cacheManager.getRedisClient().tryLock(GlobalConfig.getMessageRedisKey(), 1, 15, TimeUnit.SECONDS, () -> {
             // 清空消息，直接删除key（不可以调换顺序）
             cacheManager.getRedisClient().delete(GlobalConfig.getMessageRedisKey());
-            // 重置偏移量
-            OFFSET.getAndSet(-1);
         });
+        // 重置偏移量，其它服务器也会更新
+        OFFSET.getAndSet(-1);
     }
 
 
@@ -192,7 +192,11 @@ public class RedisMessageService {
      * @date: 2021/9/29
      **/
     public void reconnection() {
-        long time = LAST_PULL_TIME - LAST_PUSH_TIME;
+        if (LAST_PUSH_TIME == 0) {
+            return;
+        }
+        /**当前时间-上一次的推消息的时间*/
+        long time = System.currentTimeMillis() - LAST_PUSH_TIME;
         if (time >= RECONNECTION_TIME) {
             try {
                 updateLastPushTime();

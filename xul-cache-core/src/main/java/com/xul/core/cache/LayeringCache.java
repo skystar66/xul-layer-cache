@@ -68,7 +68,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
     public <T> T get(String key, Class<T> resultType) {
         T result = firstCache.get(key, resultType);
         if (LoggerHelper.isDebugEnabled()) {
-            log.info("缓存名称={},查询一级缓存。 key={},返回值是:{}",getCacheName(), key, GSONUtil.toJson(result));
+            log.info("缓存名称={},查询一级缓存。 key={},返回值是:{}", getCacheName(), key, GSONUtil.toJson(result));
         }
         if (result != null) {
             return (T) fromStoreValue(result);
@@ -76,17 +76,17 @@ public class LayeringCache extends AbstractValueAdaptingCache {
         result = secondCache.get(key, resultType);
         firstCache.putIfAbsent(key, result, resultType);
         if (LoggerHelper.isDebugEnabled()) {
-            log.info("缓存名称={},查询二级缓存,并将数据放到一级缓存。 key={},返回值是:{}",getCacheName(), key, GSONUtil.toJson(result));
+            log.info("缓存名称={},查询二级缓存,并将数据放到一级缓存。 key={},返回值是:{}", getCacheName(), key, GSONUtil.toJson(result));
         }
         return result;
     }
 
 
     @Override
-    public <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader) {
+    public <T> T get(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader) {
         T result = firstCache.get(key, resultType);
         if (LoggerHelper.isDebugEnabled()) {
-            log.info("缓存名称={},查询一级缓存。 key={},返回值是:{}",getCacheName(), key, GSONUtil.toJson(result));
+            log.info("缓存名称={},查询一级缓存。 key={},返回值是:{}", getCacheName(), key, GSONUtil.toJson(result));
         }
         if (result != null) {
             return (T) fromStoreValue(result);
@@ -104,7 +104,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
         /**设置一级缓存*/
         firstCache.putIfAbsent(key, result, resultType);
         if (LoggerHelper.isDebugEnabled()) {
-            log.info("缓存名称={},查询二级缓存,并将数据放到一级缓存。 key={},返回值是:{}",getCacheName(), key, GSONUtil.toJson(result));
+            log.info("缓存名称={},查询二级缓存,并将数据放到一级缓存。 key={},返回值是:{}", getCacheName(), key, GSONUtil.toJson(result));
         }
         return result;
     }
@@ -155,14 +155,14 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> T executeCacheMethod(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader) {
+    private <T> T executeCacheMethod(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader) {
         while (true) {
             try {
                 // 先取缓存，如果有直接返回，没有再去做拿锁操作
                 T result = firstCache.get(key, resultType);
                 if (result != null) {
                     if (LoggerHelper.isDebugEnabled()) {
-                        log.info("缓存名称={},redis缓存 key= {} 获取到锁后查询查询缓存命中，不需要执行被缓存的方法",getCacheName(), key);
+                        log.info("缓存名称={},redis缓存 key= {} 获取到锁后查询查询缓存命中，不需要执行被缓存的方法", getCacheName(), key);
                     }
                     return (T) fromStoreValue(result);
                 }
@@ -171,7 +171,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
                         10 * 1000, TimeUnit.MILLISECONDS, () -> {
                             T t = loaderAndPutValue(key, valueLoader);
                             if (LoggerHelper.isDebugEnabled()) {
-                                log.info("缓存名称={},redis缓存 key= {} 从数据库获取数据完毕，唤醒所有等待线程",getCacheName(), key);
+                                log.info("缓存名称={},redis缓存 key= {} 从数据库获取数据完毕，唤醒所有等待线程", getCacheName(), key);
                             }
                             /**存储到一级缓存中*/
                             firstCache.putIfAbsent(key, t, resultType);
@@ -183,7 +183,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
                 if (!lockSuccess) {
                     // 线程等待
                     if (LoggerHelper.isDebugEnabled()) {
-                        log.info("缓存名称={},redis缓存 key= {} 从数据库获取数据未获取到锁，进入等待状态，等待{}毫秒",getCacheName(), key, layeringCacheConfig.getSecondaryCacheConfig().getWAIT_TIME());
+                        log.info("缓存名称={},redis缓存 key= {} 从数据库获取数据未获取到锁，进入等待状态，等待{}毫秒", getCacheName(), key, layeringCacheConfig.getSecondaryCacheConfig().getWAIT_TIME());
                     }
                     awaitThreadContainer.await(key, layeringCacheConfig.getSecondaryCacheConfig().getWAIT_TIME());
                 }
@@ -207,7 +207,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> void refreshCache(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader, Object result) {
+    private <T> void refreshCache(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader, Object result) {
         ThreadPoolExecutorTask.run(() -> {
             /**缓存主动在失效前强制刷新缓存的时间*/
             long preload = layeringCacheConfig.getSecondaryCacheConfig().getPreloadTime();
@@ -222,13 +222,13 @@ public class LayeringCache extends AbstractValueAdaptingCache {
                 if (!layeringCacheConfig.getSecondaryCacheConfig().isForceRefresh()) {
                     /**软刷新*/
                     if (LoggerHelper.isDebugEnabled()) {
-                        log.info("缓存名称={},redis缓存 key={} 软刷新缓存模式",getCacheName(), key);
+                        log.info("缓存名称={},redis缓存 key={} 软刷新缓存模式", getCacheName(), key);
                     }
                     softRefresh(key);
                 } else {
                     /**硬刷新*/
                     if (LoggerHelper.isDebugEnabled()) {
-                        log.info("缓存名称={},redis缓存 key={} 强刷新缓存模式",getCacheName(), key);
+                        log.info("缓存名称={},redis缓存 key={} 强刷新缓存模式", getCacheName(), key);
                     }
                     forceRefresh(key, resultType, valueLoader, result);
                 }
@@ -261,7 +261,7 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> void forceRefresh(String key, Class<T> resultType, CacheFunctionWithParamReturn<T,String> valueLoader, Object result) {
+    private <T> void forceRefresh(String key, Class<T> resultType, CacheFunctionWithParamReturn<T, String> valueLoader, Object result) {
         redisClient.tryLock(RedissonLockClient.getExecuteDbLockKey(key), 100, 10 * 1000, TimeUnit.MILLISECONDS, () -> {
             try {
                 /**查询数据库*/
@@ -270,6 +270,8 @@ public class LayeringCache extends AbstractValueAdaptingCache {
                     /**更新一级缓存*/
                     //todo 更新其它服务器一级缓存 ，通过 mq
                     firstCache.putIfAbsent(key, loadResult, resultType);
+                    /**todo 通知其它服务器，更新本地缓存，进行续期*/
+                    notifyUpdateFirstCache(key, loadResult, redisClient);
                 }
             } catch (Exception exception) {
                 log.error("forceRefresh is error:{}", exception);
@@ -288,14 +290,14 @@ public class LayeringCache extends AbstractValueAdaptingCache {
      * @author: xl
      * @date: 2021/9/28
      **/
-    private <T> T loaderAndPutValue(String key, CacheFunctionWithParamReturn<T,String> valueLoader) {
+    private <T> T loaderAndPutValue(String key, CacheFunctionWithParamReturn<T, String> valueLoader) {
         long start = System.currentTimeMillis();
         try {
             // 加载数据
             Object loadResult = valueLoader.invokeMethod(key);
             secondCache.put(key, loadResult);
             if (LoggerHelper.isDebugEnabled()) {
-                log.info("缓存名称={},redis缓存 key={} 执行被缓存的方法，并将其放入缓存, 耗时：{}ms。数据:{}",getCacheName(),key, System.currentTimeMillis() - start, GSONUtil.toJson(loadResult));
+                log.info("缓存名称={},redis缓存 key={} 执行被缓存的方法，并将其放入缓存, 耗时：{}ms。数据:{}", getCacheName(), key, System.currentTimeMillis() - start, GSONUtil.toJson(loadResult));
             }
             return (T) fromStoreValue(loadResult);
         } catch (Exception e) {
