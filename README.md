@@ -8,7 +8,10 @@
         
 可以发现Caffeine和Redis的优缺点正好相反，所以他们可以有效的互补。
 
-## 架构图
+## 整体架构图
+![Image text](https://github.com/skystar66/xul-layer-cache/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98-%E8%AF%BB%E5%8F%96:%E6%9B%B4%E6%96%B0:%E5%88%A0%E9%99%A4:%E5%8F%AF%E7%94%A8%E6%80%A7%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg)
+
+## 服务健壮性架构图
 ![Image text](https://github.com/skystar66/xul-layer-cache/blob/master/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98-%E5%BF%83%E8%B7%B3%E6%96%AD%E7%BA%BF:%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5:%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg)
 
 ## 功能
